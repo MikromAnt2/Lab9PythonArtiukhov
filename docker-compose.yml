@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: university_db
+    environment:
+      POSTGRES_USER: uni_user
+      POSTGRES_PASSWORD: uni_pass
+      POSTGRES_DB: university_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  app:
+    build: ./app
+    container_name: university_app
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: university_db
+      DB_USER: uni_user
+      DB_PASSWORD: uni_pass
+    volumes:
+      - ./app:/app
+    command: ["python", "main.py"]
